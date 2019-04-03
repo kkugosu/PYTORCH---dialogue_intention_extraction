@@ -40,7 +40,7 @@ def sent_loader(sentence):
     return result, len(result)
 
 
-def numerize_sent(sent, len_sent):
+def numerize_sent(sent, len_sent, _wv_model):
     i = 0
     n_sent = []
     while i < len_sent:
@@ -51,7 +51,7 @@ def numerize_sent(sent, len_sent):
             n_sent.append(np.ones(100))
         else:
             try:
-                n_sent.append(wv_model.wv[sent[i]])
+                n_sent.append(_wv_model.wv[sent[i]])
             except:
                 n_sent.append(np.zeros(100))
 
@@ -71,7 +71,7 @@ def pad_dial(last_v):
     return padded_dial, leng_set
 
 
-def batch_numerical(sent_set):
+def batch_numerical(sent_set, _wv_model):
     numeric_batch = []  # numerized batch
     i = 0
     while i < len(sent_set):  # BATCH_SIZE
@@ -91,7 +91,7 @@ def batch_numerical(sent_set):
             sent_set[i][j] ['I' 'don' '’' 't' 'know' '.' '<pad>']
             sent_set[i][j] ['<stop_tag>' '<pad>' '<pad>' '<pad>' '<pad>' '<pad>' '<pad>']
             '''
-            dial.append(numerize_sent(sent_set[i][j], len(sent_set[i][j])))  # numerized_sentence
+            dial.append(numerize_sent(sent_set[i][j], len(sent_set[i][j]), _wv_model))  # numerized_sentence
             j = j + 1
         numeric_batch.append(dial)
         i = i + 1
@@ -167,7 +167,7 @@ def pad_tag(batch_data):
     return en_tag, de_tag
 
 
-def pad_text(batch_data, sent_m):
+def pad_text(batch_data, sent_m, _wv_model):
 
     en_text_1 = []
     de_text = []
@@ -297,7 +297,7 @@ def pad_text(batch_data, sent_m):
     [11, 11, 5, 5, 5, 5, 4, 4, 3, 3, 3, 3, .....]
 
     '''
-    en_text_2 = batch_numerical(en_text_1)
+    en_text_2 = batch_numerical(en_text_1, _wv_model)
     # batch * sent_num * sent_leng * wv -> en_text_2
     sentbatch_len, for_sentmodel = make_batch2sent(en_text_2)
     # batch * sent_num * sent_leng * wv -> all_sent_num(new_batch) * sent_leng * wv

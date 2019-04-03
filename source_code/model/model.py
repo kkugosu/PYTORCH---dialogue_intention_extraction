@@ -12,12 +12,12 @@ from torch.autograd import Variable
 from torchtext import data
 
 
-
 class SentGru(nn.Module):
-    def __init__(self, hidden_size, bidirectional):
+    def __init__(self, hidden_size, bidirectional, device):
         super(SentGru, self).__init__()
         self.hidden_size = hidden_size
         self.bid = bidirectional
+        self.device = device
         self.gru = nn.GRU(self.hidden_size, self.hidden_size, batch_first=True, bidirectional=self.bid)
         self.lastnet = nn.Linear(2*self.hidden_size, self.hidden_size)
 
@@ -36,7 +36,7 @@ class SentGru(nn.Module):
         return last_w
 
     def init_hidden(self, batch_size):
-        return torch.zeros(batch_size, self.bidirectional, self.hidden_size, device=device, requires_grad=False)
+        return torch.zeros(batch_size, self.bidirectional, self.hidden_size, device=self.device, requires_grad=False)
 
     def masking_f(self, new_sent, all_seq_len):
         remake = new_sent
@@ -53,19 +53,21 @@ class SentGru(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden_state_size, is_tag_, tag_size, bidir):
+    def __init__(self, hidden_state_size, is_tag_, tag_size, bidir, device):
         super(Encoder, self).__init__()
         self.h_size = hidden_state_size
         self.is_tag = is_tag_
         self.t_size = tag_size
         self.bid = bidir
+        self.device = device
         self.gru = nn.GRU(self.h_size, self.h_size, batch_first=True, bidirectional=self.bid)
         self.embed_tag = nn.Embedding(self.t_size, self.h_size)
         self.combinput = nn.Linear(2 * self.h_size, self.h_size)
         self.comblast_t = nn.Linear(3 * self.h_size, 2 * self.h_size)
 
-    def forward(self, input_, input_tag, mask, last_tag):
-        hidden = self.init_hidden()
+    def forward(self, input_, input_tag, mask, last_tag, batch_size):
+
+        hidden = self.init_hidden(batch_size)
         mask = Variable(torch.tensor(mask).cuda())
         last_tag = Variable(torch.tensor(last_tag).cuda())
         if not self.is_tag:
@@ -92,30 +94,32 @@ class Encoder(nn.Module):
             cat = torch.cat((new_output, new_last_tag), 1)  # 128,300
 
             lastoutput = self.comblast_t(cat)  # 128,200
-            lastoutput = torch.reshape(lastoutput, (BATCH_SIZE, 2, HIDDEN_SIZE))
+            lastoutput = torch.reshape(lastoutput, (batch_size, 2, self.h_size))
             lastoutput = torch.transpose(lastoutput, 0, 1).contiguous()
 
             # not hidden state. output post processing need
         return lastoutput
 
-    def init_hidden(self):
-        return Variable(torch.zeros(2, BATCH_SIZE, HIDDEN_SIZE, device=device))
+    def init_hidden(self, batch_size):
+        return Variable(torch.zeros(2, batch_size, self.h_size, device=self.device))
 
 
 class Decoder(nn.Module):  # target padding sos
-    def __init__(self, hidden_state_size, bidir):
+    def __init__(self, hidden_state_size, bidir, device):
         super(Decoder, self).__init__()
         self.bid = bidir
+        self.device = device
         self.h_size = hidden_state_size
         self.comboutput = nn.Linear(2 * self.h_size, self.h_size)
         self.gru = nn.GRU(self.h_size, self.h_size, batch_first=True, bidirectional=self.bid)
 
-    def forward(self, new_input, hidden_state):
+    def forward(self, new_input, hidden_state, batch_size):
+        hidden_state = self.init_hidden(batch_size)
         output, hidden_state = self.gru(new_input, hidden_state)
         output = self.comboutput(output)
         return output, hidden_state
 
-    def init_hidden(self):
-        return Variable(torch.zeros(2, BATCH_SIZE, HIDDEN_SIZE, device=device))
+    def init_hidden(self, batch_size):
+        return Variable(torch.zeros(2, batch_size, self.h_size, device=self.device))
 
 

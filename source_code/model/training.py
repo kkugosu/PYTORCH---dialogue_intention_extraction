@@ -17,6 +17,7 @@ from model import Decoder
 from padding import sent_loader
 
 HIDDEN_SIZE = 100
+BATCH_SIZE = 128
 
 encoder1 = Encoder(HIDDEN_SIZE,
                    is_tag_=False,
@@ -34,7 +35,7 @@ decoder1 = Decoder(HIDDEN_SIZE,
                    bidir=True
                    ).cuda()
 
-sent = SentGru(100, True)
+sent = SentGru(HIDDEN_SIZE, True)
 print("aaa")
 
 
