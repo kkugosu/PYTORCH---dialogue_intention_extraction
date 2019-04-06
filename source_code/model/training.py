@@ -11,11 +11,10 @@ from torch import optim
 from torch.autograd import Variable
 from torchtext import data
 
-from model import SentGru
-from model import Encoder
-from model import Decoder
-from padding import pad_tag, pad_text
-from dataset_loader import batchload
+from model import SentGru, Encoder, Decoder
+from padding import pad_tag, pad_text, dialogue_maxlen, dialogue_maxlen_per_batch, makewv, coder_mask, decoding
+from dataset_loader import batchload, MyTabularDataset
+
 
 BATCH_SIZE = 128
 HIDDEN_SIZE = 100
@@ -29,27 +28,45 @@ WV_PATH = '/home/jongsu/jupyter/pytorch_dialogue_ie/parameter/dialogue_wv'
 wv_model = word2vec.Word2Vec(size=100, window=5, min_count=5, workers=4)
 wv_model = word2vec.Word2Vec.load(WV_PATH)
 
+my_fields = {'dial': ('Text', data.Field(sequential=True)),
+             'emo': ('labels_1', data.Field(sequential=False)),
+             'act': ('labels_2', data.Field(sequential=False))}
+
+train_data = MyTabularDataset.splits(path=working_path, train='data_jsonfile/full_data.json', fields=my_fields)
+train_data = sorted(train_data, key=lambda x: dialogue_maxlen(x))
+train_data = train_data[:-5118]  # exclude dialogue which has extremely long sentence (0~11117 => 0~9999)
+train = sorted(train_data, key=lambda x: -len(x.Text))  # reordering training dataset with number of sentences
+# low index has much sentence because afterwards we use torch pad_sequence
+
+
+# dataseq = torch.arange(end = len(train),dtype=torch.int)
+dataseq = torch.zeros((len(train)), dtype=torch.int).fill_(5950)
 
 encoder1 = Encoder(HIDDEN_SIZE,
                    is_tag_=False,
                    tag_size=31,  # ???
-                   bidir=True
-                   ).cuda()
+                   bidir=True,
+                   device=device
+                   )
 
 encoder2 = Encoder(HIDDEN_SIZE,
                    is_tag_=True,
                    tag_size=31,
-                   bidir=True
-                   ).cuda()
+                   bidir=True,
+                   device=device
+                   )
 
 decoder1 = Decoder(HIDDEN_SIZE,
-                   bidir=True
-                   ).cuda()
+                   bidir=True,
+                   device=device
+                   )
 
-sent = SentGru(HIDDEN_SIZE, True)
-print("aaa")
+sent = SentGru(HIDDEN_SIZE, bidirectional=True, device=device)
 
-
+learning_rate = 0
+optimizer1 = optim.SGD(decoder1.parameters(), lr=learning_rate, weight_decay=1e-4)
+optimizer2 = optim.SGD(encoder2.parameters(), lr=learning_rate, weight_decay=1e-4)
+optimizer3 = optim.SGD(sent.parameters(), lr=learning_rate, weight_decay=1e-4)
 
 pp = 0
 while pp < 1000:
@@ -57,73 +74,35 @@ while pp < 1000:
     batchnum = 1
     for batch_data in batchload(train_data, repeat=False, batchsize=BATCH_SIZE, data_seq=dataseq):
         # load txt data from jsonfile
+        print('new_batch----------------')
+        print("sent_maxlen = ", dialogue_maxlen_per_batch(BATCH_SIZE, batch_data))
+        print("dial_len_range = ", len(batch_data[0].Text), " - ", len(batch_data[99].Text))
+
         batchnum = batchnum + 1
         if batchnum < 47:
             continue
 
-        '''
-        batch_data[0].labels_1
-        ['0 0 0 0 0 0 0 0 0 0 0 0 4 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 4']
-        ['1 2 3 4 1 2 2 2 2 2 1 1 1 2 1 3 4 2 1 2 1 2 1 2 1 1 1 2 2 2 1 3 4 1 1']
-
-        '''
-        print('new_batch----------------')
-
-        # print(batch_data[0].Text)
-
-        print("sent_maxlen = ", dialogue_maxlen_per_batch(BATCH_SIZE, batch_data))
-        print("dial_len_range = ", len(batch_data[0].Text), " - ", len(batch_data[99].Text))
-
-        sent_to_vec.zero_grad()
+        sent.zero_grad()
         decoder1.zero_grad()
         encoder1.zero_grad()
 
-
         en_tag, de_tag = pad_tag(batch_data)
-        en_text, en_len, de_text, de_len = pad_text(batch_data, sent_to_vec)
-
-        '''
-        coder_mask(en_len)
-        [[0. 0. 0. ... 0. 0. 1.]
-         [0. 0. 0. ... 0. 0. 1.]
-         [0. 0. 0. ... 0. 0. 1.]
-         ...
-         [0. 0. 0. ... 1. 0. 0.]
-         [0. 0. 0. ... 1. 0. 0.]
-         [0. 0. 0. ... 1. 0. 0.]]
-        torch.sum(torch.tensor(encoder_mask(en_len)),1) 
-        1111111111...
-
-        '''
+        en_text, en_len, de_text, de_len = pad_text(batch_data, sent)
 
         decoder_hidden = encoder2(en_text, en_tag, coder_mask(en_len, en_len[0], True), de_tag)  # 2,100,100
-        # print("encoding compl")
 
-        decoder_sent = 0
-        all_output = Variable(torch.zeros(BATCH_SIZE, 1, HIDDEN_SIZE, device=device))
-        out = Variable(torch.zeros(BATCH_SIZE, 1, HIDDEN_SIZE, device=device))
-        seq = 0
+        maxlen = dialogue_maxlen_per_batch(BATCH_SIZE, batch_data)
 
-        while (decoder_sent < dialogue_maxlen_per_batch(BATCH_SIZE, batch_data)):  # all_output = seq*batch*hidden
-            out, decoder_hidden = decoder1(out, decoder_hidden)
-            decoder_sent = decoder_sent + 1
+        all_output = decoding(BATCH_SIZE, HIDDEN_SIZE, device, decoder1, maxlen)
 
-            if seq != 0:
-                all_output = torch.cat((all_output, out), 1)
+        de_mask = coder_mask(de_len, maxlen, False)  # 100,44
 
-            else:
-                all_output = out
-
-            seq = seq + 1
-        # print("decoding compl")
-
-        de_mask = coder_mask(de_len, dialogue_maxlen_per_batch(BATCH_SIZE, batch_data), False)  # 100,44
         demask = torch.tensor(de_mask)
         demask = torch.unsqueeze(demask, 2).type(torch.cuda.FloatTensor)
 
         all_output = torch.mul(demask, all_output)  #
 
-        targetwv = makewv(de_text)
+        targetwv = makewv(de_text, BATCH_SIZE)
 
         targetwv = torch.tensor(targetwv).type(torch.cuda.FloatTensor)
 

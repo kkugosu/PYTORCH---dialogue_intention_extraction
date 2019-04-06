@@ -12,6 +12,110 @@ from torch.autograd import Variable
 from torchtext import data
 
 
+def decoding(batch_size, hidden_size, device, decoder, maxlen):
+
+    decoder_sent = 0
+
+    all_output = Variable(torch.zeros(batch_size, 1, hidden_size, device=device))
+    out = Variable(torch.zeros(batch_size, 1, hidden_size, device=device))
+    seq = 0
+
+    while decoder_sent < maxlen:  # all_output = seq*batch*hidden
+        out, decoder_hidden = decoder(out, decoder_hidden)
+        decoder_sent = decoder_sent + 1
+
+        if seq != 0:
+            all_output = torch.cat((all_output, out), 1)
+
+        else:
+            all_output = out
+
+        seq = seq + 1
+
+    return all_output
+
+
+def coder_mask(leng, maxsize, encoder):
+    """
+
+    make one-hot vector of mask from lengset
+    :param leng:
+    :param maxsize:
+    :param encoder:
+    :return:
+
+
+        coder_mask(en_len)
+        [[0. 0. 0. ... 0. 0. 1.]
+         [0. 0. 0. ... 0. 0. 1.]
+         [0. 0. 0. ... 0. 0. 1.]
+         ...
+         [0. 0. 0. ... 1. 0. 0.]
+         [0. 0. 0. ... 1. 0. 0.]
+         [0. 0. 0. ... 1. 0. 0.]]
+        torch.sum(torch.tensor(encoder_mask(en_len)),1)
+        1111111111...
+
+    """
+
+    var = np.zeros(shape=(len(leng), maxsize))  # len(leng) = BATCH_SIZE, leng[0]+1= largest dialogue + stop
+    i = 0
+    while i < len(leng):  # BATCH_SIZE
+        j = 0
+        while j < maxsize:
+            if encoder & (j == leng[i] - 1):
+                var[i][j] = 1
+            if (not encoder) & (j < leng[i]):  # <= stop tag
+                var[i][j] = 1
+
+            j = j + 1
+        i = i + 1
+    return var
+
+
+def makewv(target, batch_size):
+    targetwv = []
+    batchnum = 0
+    while batchnum < batch_size:
+        wv = numerize_sent(target[batchnum], len(target[batchnum]))
+        targetwv.append(wv)
+
+        batchnum = batchnum + 1
+    return targetwv
+
+
+def dialogue_maxlen_per_batch(batch_len, batch_data):
+    i = 0
+    maxlen = 1
+    while i < batch_len:
+
+        if dialogue_maxlen(batch_data[i]) > maxlen:
+            maxlen = dialogue_maxlen(batch_data[i])
+        i = i + 1
+    return maxlen
+
+
+def dialogue_maxlen(_data):
+    """
+
+    used in lamda function
+
+    return longest sentence len per dialogue
+
+    :param _data:
+    :return:
+    """
+    i = 0
+    maxleng = 0
+    while i < len(_data.Text):  # len(data.Text) = dialogue length
+
+        text, leng = sent_loader(_data.Text[i])
+        if leng > maxleng:
+            maxleng = leng
+        i = i + 1
+    return maxleng
+
+
 def sent_loader(sentence):
 
     """
