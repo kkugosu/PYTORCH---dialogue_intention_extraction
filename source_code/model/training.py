@@ -14,10 +14,21 @@ from torchtext import data
 from model import SentGru
 from model import Encoder
 from model import Decoder
-from padding import sent_loader
+from padding import pad_tag, pad_text
+from dataset_loader import batchload
 
-HIDDEN_SIZE = 100
 BATCH_SIZE = 128
+HIDDEN_SIZE = 100
+device = torch.device("cuda")
+
+tag_to_ix = {'start_tag': 0, 'stop_tag': 29, 'pad_tag': 30}
+
+working_path = '/home/jongsu/jupyter/pytorch_dialogue_ie/'
+WV_PATH = '/home/jongsu/jupyter/pytorch_dialogue_ie/parameter/dialogue_wv'
+
+wv_model = word2vec.Word2Vec(size=100, window=5, min_count=5, workers=4)
+wv_model = word2vec.Word2Vec.load(WV_PATH)
+
 
 encoder1 = Encoder(HIDDEN_SIZE,
                    is_tag_=False,

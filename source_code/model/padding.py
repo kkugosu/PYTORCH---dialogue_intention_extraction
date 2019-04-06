@@ -11,18 +11,6 @@ from torch import optim
 from torch.autograd import Variable
 from torchtext import data
 
-BATCH_SIZE = 128
-HIDDEN_SIZE = 100
-device = torch.device("cuda")
-
-tag_to_ix = {'start_tag': 0, 'stop_tag': 29, 'pad_tag': 30}
-
-working_path = '/home/jongsu/jupyter/pytorch_dialogue_ie/'
-WV_PATH = '/home/jongsu/jupyter/pytorch_dialogue_ie/parameter/dialogue_wv'
-
-wv_model = word2vec.Word2Vec(size=100, window=5, min_count=5, workers=4)
-wv_model = word2vec.Word2Vec.load(WV_PATH)
-
 
 def sent_loader(sentence):
 
