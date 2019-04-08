@@ -65,10 +65,9 @@ class Encoder(nn.Module):
         self.combinput = nn.Linear(2 * self.h_size, self.h_size)
         self.comblast_t = nn.Linear(3 * self.h_size, 2 * self.h_size)
 
-    def forward(self, input_, input_tag, mask, last_tag, batch_size):
+    def forward(self, input_, input_tag, len_info, last_tag, batch_size):
 
         hidden = self.init_hidden(batch_size)
-        mask = Variable(torch.tensor(mask).cuda())
         last_tag = Variable(torch.tensor(last_tag).cuda())
         if not self.is_tag:
             input_ = torch.transpose(input_, 0, 1)
@@ -81,9 +80,7 @@ class Encoder(nn.Module):
             input_ = self.combinput(newinput)
 
             output, hidden_state = self.gru(input_, hidden)  # outputsize [3, 128, 200] hiddensize [2, 128, 100]
-            len_info = torch.tensor(mask)
-
-            len_info = torch.unsqueeze(len_info, 2).type(torch.cuda.FloatTensor)  # 128,3,1 001001001...
+            # len_info 128,3,1 001001001...
 
             new_output = torch.mul(output, len_info)  # 128,3,200
 
@@ -113,11 +110,11 @@ class Decoder(nn.Module):  # target padding sos
         self.comboutput = nn.Linear(2 * self.h_size, self.h_size)
         self.gru = nn.GRU(self.h_size, self.h_size, batch_first=True, bidirectional=self.bid)
 
-    def forward(self, new_input, hidden_state, batch_size):
-        hidden_state = self.init_hidden(batch_size)
-        output, hidden_state = self.gru(new_input, hidden_state)
+    def forward(self, hidden_input, batch_size):
+        decoder_input = self.init_hidden(batch_size)
+        output, hidden_input = self.gru(decoder_input, hidden_input)
         output = self.comboutput(output)
-        return output, hidden_state
+        return output, hidden_input
 
     def init_hidden(self, batch_size):
         return Variable(torch.zeros(2, batch_size, self.h_size, device=self.device))

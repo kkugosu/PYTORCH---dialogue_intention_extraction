@@ -12,16 +12,14 @@ from torch.autograd import Variable
 from torchtext import data
 
 
-def decoding(batch_size, hidden_size, device, decoder, maxlen):
+def decoding(decoder, decoder_hidden, maxlen, decoder_mask, batch_size):
 
     decoder_sent = 0
 
-    all_output = Variable(torch.zeros(batch_size, 1, hidden_size, device=device))
-    out = Variable(torch.zeros(batch_size, 1, hidden_size, device=device))
     seq = 0
 
     while decoder_sent < maxlen:  # all_output = seq*batch*hidden
-        out, decoder_hidden = decoder(out, decoder_hidden)
+        out, decoder_hidden = decoder(decoder_hidden, batch_size)
         decoder_sent = decoder_sent + 1
 
         if seq != 0:
@@ -31,6 +29,7 @@ def decoding(batch_size, hidden_size, device, decoder, maxlen):
             all_output = out
 
         seq = seq + 1
+    all_output = torch.mul(decoder_mask, all_output)
 
     return all_output
 
@@ -70,21 +69,28 @@ def coder_mask(leng, maxsize, encoder):
 
             j = j + 1
         i = i + 1
+    var = torch.tensor(var)
+    var = torch.unsqueeze(var, 2).type(torch.cuda.FloatTensor)
     return var
 
 
-def makewv(target, batch_size):
-    targetwv = []
+def makewv(_wv_model, target, batch_size):
+    targetwv = numerize_sent(target[0], len(target[0]), _wv_model)
     batchnum = 0
     while batchnum < batch_size:
-        wv = numerize_sent(target[batchnum], len(target[batchnum]))
-        targetwv.append(wv)
+        if batchnum == 0:
+            targetwv = target
+        else:
+            targetwv = torch.cat((targetwv, target), 0)
+        # wv = numerize_sent(target[batchnum], len(target[batchnum]))
+        # targetwv.append(wv)
 
         batchnum = batchnum + 1
+    targetwv = torch.tensor(targetwv).type(torch.cuda.FloatTensor)
     return targetwv
 
 
-def dialogue_maxlen_per_batch(batch_len, batch_data):
+def dialogue_maxlen_per_batch(batch_data, batch_len):
     i = 0
     maxlen = 1
     while i < batch_len:
@@ -132,7 +138,7 @@ def sent_loader(sentence):
     return result, len(result)
 
 
-def numerize_sent(sent, len_sent, _wv_model):
+def numerize_sent(sent, len_sent, _wv_model): #input output to cuda
     i = 0
     n_sent = []
     while i < len_sent:
@@ -203,7 +209,7 @@ def make_batch2sent(new):
     return sentbatch_len, for_sentmodel
 
 
-def pad_tag(batch_data):
+def pad_tag(batch_data, _device):
 
     emotion_set = []
     action_set = []
@@ -259,17 +265,17 @@ def pad_tag(batch_data):
     return en_tag, de_tag
 
 
-def pad_text(batch_data, sent_m, _wv_model):
+def pad_text(sent_m, _wv_model, batch_data, _device):
 
     en_text_1 = []
     de_text = []
     all_seq_len = []
     de_len = []
     sentnum_per_batch = []
-
+    batch_size = len(batch_data)
     i = 0
     maxleng = 1
-    while i < len(batch_data):  # almost equal to BATCH_SIZE
+    while i < batch_size:  # almost equal to BATCH_SIZE
         j = 0
         temp = []
         sentnum_per_batch.append(len(batch_data[i].Text) - 2)  # -stoptag-lastsent
@@ -291,7 +297,7 @@ def pad_text(batch_data, sent_m, _wv_model):
         i = i + 1
     i = 0
 
-    while i < len(batch_data):  # almost equal to BATCH_SIZE
+    while i < batch_size:  # almost equal to BATCH_SIZE
         j = 0
         while j < len(en_text_1[i]):
             while len(en_text_1[i][j]) < maxleng:
@@ -300,7 +306,7 @@ def pad_text(batch_data, sent_m, _wv_model):
         i = i + 1
     i = 0
 
-    while i < len(batch_data):  # almost equal to BATCH_SIZE
+    while i < batch_size:  # almost equal to BATCH_SIZE
         while len(de_text[i]) < maxleng:
             de_text[i] = np.append(de_text[i], "<pad>")
         i = i + 1
@@ -446,7 +452,9 @@ def pad_text(batch_data, sent_m, _wv_model):
     .
     .
     '''
-    return en_text, en_len, de_text, de_len
+    targetwv = makewv(_wv_model, de_text, batch_size)
+
+    return en_text, en_len, targetwv, de_len
 
 
 
