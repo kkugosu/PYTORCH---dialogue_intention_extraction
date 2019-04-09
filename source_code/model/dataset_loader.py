@@ -11,6 +11,7 @@ from torch import optim
 from torch.autograd import Variable
 from torchtext import data
 
+
 def batchload(dataset, repeat, batchsize, data_seq):
     """
 

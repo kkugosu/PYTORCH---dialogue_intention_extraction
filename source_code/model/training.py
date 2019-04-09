@@ -13,7 +13,9 @@ from torchtext import data
 
 from model import SentGru, Encoder, Decoder
 from padding import pad_tag, pad_text
-from padding import dialogue_maxlen, dialogue_maxlen_per_batch, makewv, coder_mask, decoding
+from cal_maxlen import sentence_maxlen_per_dialogue, sentence_maxlen_per_batch, dialogue_maxlen_per_batch
+from mask import coder_mask
+from decode import decoding
 from dataset_loader import batchload, MyTabularDataset
 
 
@@ -34,7 +36,7 @@ my_fields = {'dial': ('Text', data.Field(sequential=True)),
              'act': ('labels_2', data.Field(sequential=False))}
 
 train_data = MyTabularDataset.splits(path=working_path, train='data_jsonfile/full_data.json', fields=my_fields)
-train_data = sorted(train_data, key=lambda x: dialogue_maxlen(x))
+train_data = sorted(train_data, key=lambda x: sentence_maxlen_per_dialogue(x))
 train_data = train_data[:-5118]  # exclude dialogue which has extremely long sentence (0~11117 => 0~9999)
 train = sorted(train_data, key=lambda x: -len(x.Text))  # reordering training dataset with number of sentences
 # low index has much sentence because afterwards we use torch pad_sequence
@@ -76,7 +78,7 @@ while pp < 1000:
     for batch_data in batchload(train_data, repeat=False, batchsize=BATCH_SIZE, data_seq=dataseq):
         # load txt data from jsonfile
         print('new_batch----------------')
-        print("sent_maxlen = ", dialogue_maxlen_per_batch(batch_data, BATCH_SIZE))
+        print("sent_maxlen = ", sentence_maxlen_per_batch(batch_data))
         print("dial_len_range = ", len(batch_data[0].Text), " - ", len(batch_data[99].Text))
 
         batchnum = batchnum + 1
@@ -92,13 +94,13 @@ while pp < 1000:
         en_text_vec, en_len, de_text_vec, de_len = pad_text(sent, wv_model, batch_data, device)
         # load batch* (dialogue_length*sent_vec(float)) -> en_text_vec
         # load batch* en_len
-        de_maxlen = dialogue_maxlen_per_batch(batch_data, BATCH_SIZE)
-        en_maxlen = en_len[0]
+        de_maxlen = sentence_maxlen_per_batch(batch_data)
+        en_maxlen = dialogue_maxlen_per_batch(en_len)
 
         encoder_mask = coder_mask(en_len, en_maxlen, True)
         decoder_mask = coder_mask(de_len, de_maxlen, False)
 
-        decoder_input = encoder2(en_text_vec, en_tag, encoder_mask, de_tag, BATCH_SIZE)  # 2,100,100
+        decoder_input = encoder2(en_text_vec, en_tag, encoder_mask, de_tag, BATCH_SIZE)
         decoder_output = decoding(decoder1, decoder_input, de_maxlen, decoder_mask, BATCH_SIZE)
 
         loss = nn.MSELoss()
