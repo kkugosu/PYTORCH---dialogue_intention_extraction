@@ -110,17 +110,17 @@ def batch_numerical(sent_set, _wv_model):
 
 def make_batch2sent(new):
 
-    for_sentmodel = []
-    batchnum = 0
+    for_sentmodel = torch.tensor(new[0]).cuda()
+    batchnum = 1
     while batchnum < len(new):  # BATCH_SIZE
-        for_sentmodel = for_sentmodel + new[batchnum]
+        for_sentmodel = torch.cat((for_sentmodel, torch.tensor(new[batchnum]).cuda()))
         batchnum = batchnum + 1
     sentbatch_len = len(for_sentmodel)
     # batch * sent_num * sent_leng * wv -> all_sent_num * sent_leng * wv
     return sentbatch_len, for_sentmodel
 
 
-def pad_tag(batch_data, _device):
+def pad_tag(batch_data, tag_to_ix, _device):
 
     emotion_set = []
     action_set = []

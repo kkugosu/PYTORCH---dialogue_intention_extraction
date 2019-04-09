@@ -24,6 +24,7 @@ class SentGru(nn.Module):
     def forward(self, char, batch_size, masking_v):
         h0 = self.init_hidden(batch_size)
         # char 7,326,100 [6][0] = 0000....<pad>
+
         gru_out, h0 = self.gru(char, h0)
         # gru 7,326,200
 
@@ -36,10 +37,10 @@ class SentGru(nn.Module):
         return last_w
 
     def init_hidden(self, batch_size):
-        return torch.zeros(batch_size, self.bidirectional, self.hidden_size, device=self.device, requires_grad=False)
+        return torch.zeros(2, batch_size, self.hidden_size, device=self.device, requires_grad=False)
 
-    def masking_f(self, new_sent, all_seq_len):
-        remake = new_sent
+    def masking_f(self, remake, all_seq_len):
+
         # remake [326, 7, 200]
         i = 0
         while i < len(remake):

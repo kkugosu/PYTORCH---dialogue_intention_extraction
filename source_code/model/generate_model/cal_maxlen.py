@@ -2,7 +2,13 @@ import numpy as np
 
 
 def dialogue_maxlen_per_batch(len_info):
-    return len_info[0]
+    i = 0
+    maxlen = 0
+    while i < len(len_info):
+        if len(len_info[i]) > maxlen:
+            maxlen = len(len_info[i])
+        i = i + 1
+    return maxlen
 
 
 def sentence_maxlen_per_batch(batch_data):
