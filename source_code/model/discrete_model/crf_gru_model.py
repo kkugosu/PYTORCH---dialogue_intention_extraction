@@ -1,5 +1,12 @@
 from torch import nn
+from torch.autograd import Variable
 import torch
+
+
+def log_sum_exp(x):
+    max_score, _ = torch.max(x, -1)
+    max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
+    return max_score + torch.log(torch.sum(torch.exp(x - max_score_broadcast), -1))
 
 
 class BigruCrf(nn.Module):
@@ -30,9 +37,9 @@ class BigruCrf(nn.Module):
 
         return gru_feats
 
-    def for_score(self, pre_mask, feats):
+    def for_score(self, pre_mask, feats, batch_size):
 
-        score = Variable(torch.zeros((BATCH_SIZE, 31)).fill_(-10000.).cuda())  # default requires_grad = false
+        score = Variable(torch.zeros((batch_size, 31)).fill_(-10000.).cuda())  # default requires_grad = false
         score[:, self.tag_to_ix['start_tag']] = 0.  # start to all is 0
 
         mask = Variable(torch.Tensor(pre_mask).cuda())  # default requires_grad = false
@@ -54,8 +61,8 @@ class BigruCrf(nn.Module):
         score = log_sum_exp(score)
         return score
 
-    def cal_score(self, mask, feats, tag):
-        score = Variable(torch.FloatTensor(BATCH_SIZE).fill_(0.).cuda())  # default requires_grad = false
+    def cal_score(self, mask, feats, tag, batch_size):
+        score = Variable(torch.FloatTensor(batch_size).fill_(0.).cuda())  # default requires_grad = false
 
         temp_tag = Variable(tag.cuda())  # default requires_grad = false
         mask_tensor = torch.transpose(torch.FloatTensor(mask), 0, 1)  # seq*batch
@@ -65,13 +72,13 @@ class BigruCrf(nn.Module):
 
             transit = torch.cat(
                 [torch.tensor([self.transitions[temp_tag[batch][i + 1], temp_tag[batch][i]]]) for batch in
-                 range(BATCH_SIZE)])
+                 range(batch_size)])
 
             transit = transit.cuda()
 
             transit = transit * mask_tensor[i]  # batch*batch->batch
 
-            emit = torch.cat([feat[batch][temp_tag[batch][i + 1]].view(1, -1) for batch in range(BATCH_SIZE)]).squeeze(
+            emit = torch.cat([feat[batch][temp_tag[batch][i + 1]].view(1, -1) for batch in range(batch_size)]).squeeze(
                 1)
 
             emit = emit * mask_tensor[i]  # batch*batch->batch
@@ -80,13 +87,13 @@ class BigruCrf(nn.Module):
 
         return score
 
-    def neg_log_likelihood(self, mask, sentence, tags, batch):
+    def neg_log_likelihood(self, mask, sentence, tags, batch_size):
 
-        feats = self._get_gru_features(batch, sentence)
+        feats = self._get_gru_features(batch_size, sentence)
 
-        forward_score = self.for_score(mask, feats)
+        forward_score = self.for_score(mask, feats, batch_size)
 
-        gold_score = self.cal_score(mask, feats, tags)
+        gold_score = self.cal_score(mask, feats, tags, batch_size)
         '''
         newt = self.transitions.data.cpu().numpy()
         newt[0,:] = 0
@@ -209,20 +216,20 @@ class Crf(nn.Module):
         self.hidden_dim = hidden_dim
         self.tag_to_ix = tag_to_ix
 
-    def init_hidden(self, batch):
-        return Variable(torch.zeros(2, batch, 100).cuda())  # default requires_grad = false
+    def init_hidden(self, batch_size):
+        return Variable(torch.zeros(2, batch_size, 100).cuda())  # default requires_grad = false
 
-    def _get_gru_features(self, batch, sentence_set):
+    def _get_gru_features(self, batch_size, sentence_set):
 
-        hidden = self.init_hidden(batch)
+        hidden = self.init_hidden(batch_size)
         # gru_out, hidden = self.gru(sentence_set, hidden)
 
         gru_feats = self.hidden2tag(sentence_set)
 
         return gru_feats
 
-    def for_score(self, pre_mask, feats):
-        score = Variable(torch.zeros((BATCH_SIZE, 31)).fill_(-10000.).cuda())  # default requires_grad = false
+    def for_score(self, pre_mask, feats, batch_size):
+        score = Variable(torch.zeros((batch_size, 31)).fill_(-10000.).cuda())  # default requires_grad = false
         score[:, self.tag_to_ix['start_tag']] = 0.  # start to all is 0
 
         mask = Variable(torch.Tensor(pre_mask).cuda())  # default requires_grad = false
@@ -244,8 +251,8 @@ class Crf(nn.Module):
         score = log_sum_exp(score)
         return score
 
-    def cal_score(self, mask, feats, tag):
-        score = Variable(torch.FloatTensor(BATCH_SIZE).fill_(0.).cuda())  # default requires_grad = false
+    def cal_score(self, mask, feats, tag, batch_size):
+        score = Variable(torch.FloatTensor(batch_size).fill_(0.).cuda())  # default requires_grad = false
 
         temp_tag = Variable(tag.cuda())  # default requires_grad = false
         mask_tensor = torch.transpose(torch.FloatTensor(mask), 0, 1)  # seq*batch
@@ -255,13 +262,13 @@ class Crf(nn.Module):
 
             transit = torch.cat(
                 [torch.tensor([self.transitions[temp_tag[batch][i + 1], temp_tag[batch][i]]]) for batch in
-                 range(BATCH_SIZE)])
+                 range(batch_size)])
 
             transit = transit.cuda()
 
             transit = transit * mask_tensor[i]  # batch*batch->batch
 
-            emit = torch.cat([feat[batch][temp_tag[batch][i + 1]].view(1, -1) for batch in range(BATCH_SIZE)]).squeeze(
+            emit = torch.cat([feat[batch][temp_tag[batch][i + 1]].view(1, -1) for batch in range(batch_size)]).squeeze(
                 1)
 
             emit = emit * mask_tensor[i]  # batch*batch->batch
@@ -270,13 +277,13 @@ class Crf(nn.Module):
 
         return score
 
-    def neg_log_likelihood(self, mask, sentence, tags, batch):
+    def neg_log_likelihood(self, mask, sentence, tags, batch_size):
 
-        feats = self._get_gru_features(batch, sentence)
+        feats = self._get_gru_features(batch_size, sentence)
 
-        forward_score = self.for_score(mask, feats)
+        forward_score = self.for_score(mask, feats, batch_size)
 
-        gold_score = self.cal_score(mask, feats, tags)
+        gold_score = self.cal_score(mask, feats, tags, batch_size)
         '''
         newt = self.transitions.data.cpu().numpy()
         newt[0,:] = 0

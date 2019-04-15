@@ -39,6 +39,7 @@ def make_batch2sent(new):
         batchnum = batchnum + 1
     sentbatch_len = len(for_sentmodel)
     # batch * sent_num * sent_leng * wv -> all_sent_num * sent_leng * wv
+    for_sentmodel = torch.FloatTensor(for_sentmodel).cuda()
     return sentbatch_len, for_sentmodel
 
 
@@ -49,14 +50,16 @@ def pad_cat_tag(emotion, act):
         emo, lenge = sent_loader(emotion[i][0])
         ac, lenga = sent_loader(act[i][0])
         j = 0
-        inte = tag_to_ix['start_tag']  # append stop tag
+        inte = [tag_to_ix['start_tag']]  # append stop tag
         while j < len(emo):  # sent length
             inte.append(int(emo[j]) * 4 + int(ac[j]))
             j = j + 1
         inte.append(tag_to_ix['stop_tag'])  # append stop tag
         torch_inte = torch.tensor(inte)
         new_tag.append(torch_inte)  # str to int
+
         i = i + 1
+
     padded_tag = pad_sequence(new_tag, batch_first=True, padding_value=tag_to_ix['pad_tag'])
 
     # emotion+action string -> emotion+action numb + padding
@@ -159,6 +162,7 @@ def pad_batch(minibatch):
 def all_preprocess(sent, batch_data):
     # sorted with dialogue length
     # print(batch_data[0].Text)
+    batch_size = len(batch_data)
     #######################################################
     emotion_set = []
     action_set = []
@@ -247,13 +251,14 @@ def all_preprocess(sent, batch_data):
     # batch * sent_num * sent_leng * wv -> new2
 
     sentbatch_len, for_sentmodel = make_batch2sent(new2)
+
     # batch * sent_num * sent_leng * wv -> all_sent_num(new_batch) * sent_leng * wv
     # for_sentmodel2 -> torch.Size([326, 7, 100])
     # sentbatch_len -> 326
 
     # for_sentmodel2 -> torch.Size([7, 326, 100])
 
-    pre_crf_gru = sent(for_sentmodel, hidden_state, all_seq_len)
+    pre_crf_gru = sent(for_sentmodel, len(for_sentmodel), all_seq_len)
     '''
     print(pre_crf_gru[0])
     print(pre_crf_gru[1])

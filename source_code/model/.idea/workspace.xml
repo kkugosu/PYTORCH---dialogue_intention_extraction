@@ -11,11 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="crf_training.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="crf_training.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/discrete_model/crf_training.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="23" selection-start-line="23" selection-end-line="23" selection-end-column="59" />
+            <state relative-caret-position="-7">
+              <caret line="84" column="31" lean-forward="true" selection-start-line="84" selection-start-column="31" selection-end-line="84" selection-end-column="31" />
               <folding>
                 <element signature="e#0#69#0" expanded="true" />
               </folding>
@@ -23,21 +23,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cal_maxlen.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/discrete_model/cal_maxlen.py">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
       <file leaf-file-name="dataset_loader.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/discrete_model/dataset_loader.py">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file leaf-file-name="training.ipynb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/training.ipynb">
-          <provider selected="true" editor-type-id="ipnb-editor">
-            <state>
-              <selected id="8" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="210">
+              <caret line="46" column="20" selection-start-line="46" selection-start-column="20" selection-end-line="46" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -45,44 +35,11 @@
       <file leaf-file-name="crf_gru_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/discrete_model/crf_gru_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1830">
-              <caret line="191" column="39" selection-start-line="191" selection-start-column="39" selection-end-line="191" selection-end-column="39" />
+            <state relative-caret-position="-225">
+              <caret line="9" selection-start-line="9" selection-end-line="9" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="shared_model.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/discrete_model/shared_model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/generate_model/model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="40" lean-forward="true" selection-start-line="40" selection-end-line="40" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="chr_word_to_vec.ipynb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/chr_word_to_vec.ipynb">
-          <provider selected="true" editor-type-id="ipnb-editor">
-            <state>
-              <selected id="0" />
             </state>
           </provider>
         </entry>
@@ -91,18 +48,39 @@
         <entry file="file://$PROJECT_DIR$/crf_gru_model.ipynb">
           <provider selected="true" editor-type-id="ipnb-editor">
             <state>
-              <selected id="1" />
+              <selected id="23" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="padding.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/discrete_model/utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="30">
+              <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="padding.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/discrete_model/padding.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="8" column="49" selection-start-line="8" selection-start-column="49" selection-end-line="8" selection-end-column="49" />
+            <state relative-caret-position="345">
+              <caret line="59" selection-start-line="59" selection-end-line="59" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="shared_model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/discrete_model/shared_model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="379">
+              <caret line="29" column="100" lean-forward="true" selection-start-line="29" selection-start-column="100" selection-end-line="29" selection-end-column="100" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -119,14 +97,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>dial_leng</find>
-      <find>coder_p</find>
-      <find>return</find>
-      <find>new_dial</find>
-      <find>de_sent</find>
-      <find>new</find>
-      <find>make_batch2</find>
-      <find>decoder_sent</find>
       <find>sent_m</find>
       <find>coder_ma</find>
       <find>pad_t</find>
@@ -149,6 +119,14 @@
       <find>maxlen</find>
       <find>code</find>
       <find>dialogue_</find>
+      <find>pad_cat</find>
+      <find>make_batch</find>
+      <find>init_hidden</find>
+      <find>cal_score</find>
+      <find>for_score</find>
+      <find>cal_s</find>
+      <find>pad_cat_tag</find>
+      <find>for_s</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -169,16 +147,18 @@
         <option value="$PROJECT_DIR$/generate_model/__init__.py" />
         <option value="$PROJECT_DIR$/generate_model/training.py" />
         <option value="$PROJECT_DIR$/discrete_model/training" />
-        <option value="$PROJECT_DIR$/discrete_model/crf_gru_model.py" />
-        <option value="$PROJECT_DIR$/discrete_model/crf_training.py" />
         <option value="$PROJECT_DIR$/discrete_model/shared_model.py" />
+        <option value="$PROJECT_DIR$/discrete_model/utils.py" />
+        <option value="$PROJECT_DIR$/discrete_model/crf_gru_model.py" />
         <option value="$PROJECT_DIR$/discrete_model/padding.py" />
+        <option value="$PROJECT_DIR$/discrete_model/dataset_loader.py" />
+        <option value="$PROJECT_DIR$/discrete_model/crf_training.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="289" />
-    <option name="y" value="41" />
+    <option name="x" value="225" />
+    <option name="y" value="26" />
     <option name="width" value="1401" />
     <option name="height" value="998" />
   </component>
@@ -232,7 +212,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.training">
+  <component name="RunManager" selected="Python.crf_training">
     <configuration name="Unnamed" type="PythonConfigurationType" factoryName="Python">
       <module name="model" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -246,6 +226,24 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="crf_training" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="model" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/discrete_model" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/discrete_model/crf_training.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -291,9 +289,11 @@
       <item itemvalue="Python.padding" />
       <item itemvalue="Python.Unnamed" />
       <item itemvalue="Python.training" />
+      <item itemvalue="Python.crf_training" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.crf_training" />
         <item itemvalue="Python.training" />
       </list>
     </recent_temporary>
@@ -312,18 +312,18 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="289" y="41" width="1401" height="998" extended-state="0" />
+    <frame x="225" y="26" width="1401" height="998" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24982156" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24982156" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.34157303" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.16292135" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -337,7 +337,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/training.py" />
     <entry file="file://$PROJECT_DIR$/padding.py" />
     <entry file="file://$PROJECT_DIR$/model.py" />
     <entry file="file://$PROJECT_DIR$/dataset_loader.py" />
@@ -430,37 +429,28 @@
     <entry file="file://$PROJECT_DIR$/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/discrete_model/training">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="28" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/discrete_model/training" />
     <entry file="file://$PROJECT_DIR$/generate_model/training.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="893">
           <caret line="99" column="51" lean-forward="true" selection-end-line="128" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/chr_word_to_vec.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/generate_model/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="40" lean-forward="true" selection-start-line="40" selection-end-line="40" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="435">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/discrete_model/cal_maxlen.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/chr_word_to_vec.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
         </state>
       </provider>
     </entry>
@@ -471,18 +461,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/discrete_model/dataset_loader.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/discrete_model/cal_maxlen.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/discrete_model/shared_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="379">
+          <caret line="29" column="100" lean-forward="true" selection-start-line="29" selection-start-column="100" selection-end-line="29" selection-end-column="100" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/discrete_model/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/discrete_model/padding.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="59" selection-start-line="59" selection-end-line="59" />
           <folding>
-            <element signature="e#0#12#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -490,36 +491,33 @@
     <entry file="file://$PROJECT_DIR$/crf_gru_model.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
-          <selected id="34" />
+          <selected id="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/discrete_model/crf_gru_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1830">
-          <caret line="191" column="39" selection-start-line="191" selection-start-column="39" selection-end-line="191" selection-end-column="39" />
+        <state relative-caret-position="-225">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/discrete_model/crf_training.py">
+    <entry file="file://$PROJECT_DIR$/discrete_model/dataset_loader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" selection-start-line="23" selection-end-line="23" selection-end-column="59" />
-          <folding>
-            <element signature="e#0#69#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="210">
+          <caret line="46" column="20" selection-start-line="46" selection-start-column="20" selection-end-line="46" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/discrete_model/padding.py">
+    <entry file="file://$PROJECT_DIR$/discrete_model/crf_training.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="49" selection-start-line="8" selection-start-column="49" selection-end-line="8" selection-end-column="49" />
+        <state relative-caret-position="-7">
+          <caret line="84" column="31" lean-forward="true" selection-start-line="84" selection-start-column="31" selection-end-line="84" selection-end-column="31" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#69#0" expanded="true" />
           </folding>
         </state>
       </provider>

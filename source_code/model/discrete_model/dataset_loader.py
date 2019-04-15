@@ -42,7 +42,9 @@ def batchload(dataset, repeat, batchsize, data_seq):
 
     while True:
         i = batchsize
+
         while i <= len(data_seq):
+            print(i)
             batch = []
             batch_seq = 0
             batchnum = data_seq[i - batchsize:i]
