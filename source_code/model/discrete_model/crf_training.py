@@ -3,7 +3,7 @@ from discrete_model.shared_model import SentGru
 from discrete_model.dataset_loader import batchload, MyTabularDataset
 from discrete_model.cal_maxlen import sentence_maxlen_per_dialogue, sent_loader, sentence_maxlen_per_batch
 from discrete_model.padding import all_preprocess
-from discrete_model.utils import cal_accuracy, make_mask, loss_filtering
+from discrete_model.utils import cal_accuracy, make_mask, loss_filtering, coder_mask
 import numpy as np
 import re
 import json
@@ -66,13 +66,14 @@ print("now ready")
 
 
 filtering_value = 3
+crf.load_state_dict(torch.load(working_path + 'parameter/crf.pth'))
 grucrf.load_state_dict(torch.load(working_path + 'parameter/crf_gru.pth'))
 sent.load_state_dict(torch.load(working_path + 'parameter/shared.pth'))
 
 
 iter_num = 0
 k = 0
-while iter_num < 10:
+while iter_num < 1:
     iter_num = iter_num + 1
     batchnum = 1
     for batch_data in batchload(train, repeat=True, batchsize=BATCH_SIZE, data_seq=dataseq):
@@ -87,15 +88,25 @@ while iter_num < 10:
         #    continue
 
         sent.zero_grad()
-        grucrf.zero_grad()
+        crf.zero_grad()
 
         new_dial, new_tag, dial_leng = all_preprocess(sent, batch_data)
         # load batch* (dialogue_length*sent_vec(float)) -> new_dial
         # load batch* tag -> new_tag
         # load batch* dial_leng
+        print(np.shape(make_mask(dial_leng)))
+        print(np.shape(new_dial))
+        print(new_tag[0].cpu().numpy())
+        print(coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31))
+        one_hot_tag = coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31)
+        i = 1
+        while i < BATCH_SIZE:
+            one_hot_tag = torch.cat((one_hot_tag, coder_mask(new_tag[i].cpu().numpy(), 31, True).view(-1, 31)), 0)
 
-        loss = grucrf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
+        loss = torch.nn.CrossEntropyLoss(Linear(make_mask(dial_leng), new_dial), one_hot_tag)
 
+        # loss = grucrf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
+        loss = crf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
         newary_ = []
         loss, newary_ = loss_filtering(loss, filtering_value, newary_, k)
         print(loss)
@@ -104,8 +115,12 @@ while iter_num < 10:
         batch_loss.backward()
 
         optimizer0.step()
-        optimizer1.step()
-        break
+        # optimizer1.step()
+        # optimizer2.step()
+        optimizer3.step()
+        # optimizer4.step()
+        #torch.save(crf.state_dict(), working_path + 'parameter/crf.pth')
+
         '''
                 if batchnum == 50:
             break

@@ -12,11 +12,6 @@ from torch.autograd import Variable
 from torchtext import data
 
 
-
-
-
-
-
 def makewv(_wv_model, target, batch_size):
     targetwv = numerize_sent(target[0], len(target[0]), _wv_model)
     batchnum = 0

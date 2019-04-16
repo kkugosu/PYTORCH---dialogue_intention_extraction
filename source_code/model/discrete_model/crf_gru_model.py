@@ -3,6 +3,15 @@ from torch.autograd import Variable
 import torch
 
 
+def argmax(vec):
+    '''
+    return the argmax as a python int
+    '''
+
+    _, idx = torch.max(vec, 1)
+    return idx.item()
+
+
 def log_sum_exp(x):
     max_score, _ = torch.max(x, -1)
     max_score_broadcast = max_score.unsqueeze(-1).expand_as(x)
@@ -12,9 +21,9 @@ def log_sum_exp(x):
 class BigruCrf(nn.Module):
     def __init__(self, tag_to_ix, hidden_dim):
         super(BigruCrf, self).__init__()
-
-        self.gru = nn.GRU(100, 100, bidirectional=True)  # default requires_grad = true
-        self.hidden2tag = nn.Linear(200, 31)  # default requires_grad = true
+        self.hidden_dim = hidden_dim
+        self.gru = nn.GRU(self.hidden_dim, self.hidden_dim, bidirectional=True)  # default requires_grad = true
+        self.hidden2tag = nn.Linear(2*self.hidden_dim, 31)  # default requires_grad = true
         self.transitions = nn.Parameter(torch.randn(31, 31))  # [a,b] trans from b to a,  requires_grad = true
         self.transitions.data[0, :] = -10000  # all to start
         self.transitions.data[:, 29] = -10000  # stop to all
@@ -25,14 +34,13 @@ class BigruCrf(nn.Module):
         self.hidden_dim = hidden_dim
         self.tag_to_ix = tag_to_ix
 
-    def init_hidden(self, batch):
-        return Variable(torch.zeros(2, batch, 100).cuda())  # default requires_grad = false
+    def init_hidden(self, batch_size):
+        return Variable(torch.zeros(2, batch_size, self.hidden_dim).cuda())  # default requires_grad = false
 
     def _get_gru_features(self, batch, sentence_set):
 
         hidden = self.init_hidden(batch)
         gru_out, hidden = self.gru(sentence_set, hidden)
-
         gru_feats = self.hidden2tag(gru_out)
 
         return gru_feats
@@ -168,24 +176,29 @@ class BigruCrf(nn.Module):
 class Bigru(nn.Module):
     def __init__(self, tag_to_ix, hidden_dim):
         super(Bigru, self).__init__()
-
-        self.gru = nn.GRU(100, 100, bidirectional=True)  # default requires_grad = true
-        self.hidden2tag = nn.Linear(200, 31)  # default requires_grad = true
+        self.hidden_dim = hidden_dim
+        self.gru = nn.GRU(self.hidden_dim, self.hidden_dim, bidirectional=True)  # default requires_grad = true
+        self.hidden2tag = nn.Linear(2 * self.hidden_dim, 31)  # default requires_grad = true
 
         self.tag_to_ix = tag_to_ix
 
     def _get_gru_features(self, batch, sentence_set):
         hidden = self.init_hidden(batch)
         gru_out, hidden = self.gru(sentence_set, hidden)
-
         gru_feats = self.hidden2tag(gru_out)
 
         return gru_feats
 
-    def forward(self, batch, dummy_input, seq):  # dont confuse this with _forward_alg above.
-        feats = self._get_gru_features(batch, sentence)
+        #  mask, sentence, tags, batch_size
+
+    def forward(self, mask, sentence, batch_size):  # dont confuse this with _forward_alg above.
+
+        feats = self._get_gru_features(batch_size, sentence)
 
         return feats
+
+    def init_hidden(self, batch_size):
+        return Variable(torch.zeros(2, batch_size, self.hidden_dim).cuda())  # default requires_grad = false
 
 
 class Linear(nn.Module):
@@ -193,11 +206,15 @@ class Linear(nn.Module):
         super(Linear, self).__init__()
         self.hidden_dim = hidden_dim
         self.tag_size = tag_size
-        self.hidden2tag = nn.Linear(self.hidden_dim, self.tag_size)  # default requires_grad = true
+        self.emb = nn.Embedding(self.tag_size, self.hidden_dim)
 
-    def forward(self, _input):  # dont confuse this with _forward_alg above.
-        feats = self.hidden2tag(_input)
-        return feats
+    def forward(self, mask, sentence):  # dont confuse this with _forward_alg above.
+        sentence = torch.transpose(sentence, 0, 1)
+        mask = torch.FloatTensor(mask).cuda()
+        mask = mask.unsqueeze(-1)
+        predict = mask * sentence
+        predict = torch.nn.Softmax(predict)
+        return predict
 
 
 class Crf(nn.Module):
