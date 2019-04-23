@@ -94,19 +94,28 @@ while iter_num < 1:
         # load batch* (dialogue_length*sent_vec(float)) -> new_dial
         # load batch* tag -> new_tag
         # load batch* dial_leng
-        print(np.shape(make_mask(dial_leng)))
-        print(np.shape(new_dial))
-        print(new_tag[0].cpu().numpy())
-        print(coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31))
-        one_hot_tag = coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31)
+        # print(np.shape(make_mask(dial_leng)))
+        # print(np.shape(new_dial))
+        # print(new_tag[0].cpu().numpy())
+        # print(coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31))
+        one_hot_tag = coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)
+
         i = 1
         while i < BATCH_SIZE:
-            one_hot_tag = torch.cat((one_hot_tag, coder_mask(new_tag[i].cpu().numpy(), 31, True).view(-1, 31)), 0)
+            one_hot_tag = torch.cat((one_hot_tag, coder_mask(new_tag[i].cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)), 0)
 
-        loss = torch.nn.CrossEntropyLoss(Linear(make_mask(dial_leng), new_dial), one_hot_tag)
+            i = i + 1
+        print(one_hot_tag.size())
+        tensormask = make_mask(dial_leng)
+        my_output = linear(tensormask, new_dial)
+        print(my_output.size())
+        print("zzzzzz")
 
+        loss = torch.nn.CrossEntropyLoss(my_output, one_hot_tag)
+
+        print(loss)
         # loss = grucrf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
-        loss = crf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
+        # loss = crf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
         newary_ = []
         loss, newary_ = loss_filtering(loss, filtering_value, newary_, k)
         print(loss)

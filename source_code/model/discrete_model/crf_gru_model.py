@@ -206,14 +206,17 @@ class Linear(nn.Module):
         super(Linear, self).__init__()
         self.hidden_dim = hidden_dim
         self.tag_size = tag_size
-        self.emb = nn.Embedding(self.tag_size, self.hidden_dim)
+        self.lin = nn.Linear(self.hidden_dim, self.tag_size)
+        self.softmax = nn.Softmax(2)
 
     def forward(self, mask, sentence):  # dont confuse this with _forward_alg above.
         sentence = torch.transpose(sentence, 0, 1)
         mask = torch.FloatTensor(mask).cuda()
         mask = mask.unsqueeze(-1)
         predict = mask * sentence
-        predict = torch.nn.Softmax(predict)
+        predict = self.lin(predict)
+        print(predict.size())
+        predict = self.softmax(predict)
         return predict
 
 
