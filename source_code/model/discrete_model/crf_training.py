@@ -18,6 +18,8 @@ from torch.autograd import Variable
 from torchtext import data
 import torch
 
+def changeindex(inp):
+    return inp[1:]
 
 BATCH_SIZE = 128
 HIDDEN_SIZE = 100
@@ -70,6 +72,10 @@ crf.load_state_dict(torch.load(working_path + 'parameter/crf.pth'))
 grucrf.load_state_dict(torch.load(working_path + 'parameter/crf_gru.pth'))
 sent.load_state_dict(torch.load(working_path + 'parameter/shared.pth'))
 
+cross_e_loss = nn.CrossEntropyLoss()
+
+
+
 
 iter_num = 0
 k = 0
@@ -98,26 +104,34 @@ while iter_num < 1:
         # print(np.shape(new_dial))
         # print(new_tag[0].cpu().numpy())
         # print(coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31))
-        one_hot_tag = coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)
+        print(dial_leng)
+
+        tag = changeindex(new_tag[0]).unsqueeze(0)
+        one_hot_tag = tag
+        # one_hot_tag = coder_mask(tag.cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)
 
         i = 1
         while i < BATCH_SIZE:
-            one_hot_tag = torch.cat((one_hot_tag, coder_mask(new_tag[i].cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)), 0)
-
+            tag = changeindex(new_tag[i]).unsqueeze(0)
+            # tag = coder_mask(tag.cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)
+            one_hot_tag = torch.cat((one_hot_tag, tag), 0)
             i = i + 1
-        print(one_hot_tag.size())
+
         tensormask = make_mask(dial_leng)
+
         my_output = linear(tensormask, new_dial)
+        my_output = torch.transpose(my_output, 1, 2)
         print(my_output.size())
+        print(one_hot_tag.size())
         print("zzzzzz")
 
-        loss = torch.nn.CrossEntropyLoss(my_output, one_hot_tag)
+        loss = cross_e_loss(my_output, one_hot_tag)
 
         print(loss)
         # loss = grucrf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
         # loss = crf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
         newary_ = []
-        loss, newary_ = loss_filtering(loss, filtering_value, newary_, k)
+        # loss, newary_ = loss_filtering(loss, filtering_value, newary_, k)
         print(loss)
         batch_loss = torch.sum(loss)
         print(batch_loss)

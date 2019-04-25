@@ -14,8 +14,8 @@
       <file leaf-file-name="crf_training.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/discrete_model/crf_training.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="94" column="36" lean-forward="true" selection-start-line="94" selection-start-column="36" selection-end-line="94" selection-end-column="36" />
+            <state relative-caret-position="203">
+              <caret line="124" column="33" lean-forward="true" selection-start-line="124" selection-start-column="33" selection-end-line="124" selection-end-column="33" />
               <folding>
                 <element signature="e#0#69#0" expanded="true" />
               </folding>
@@ -26,8 +26,8 @@
       <file leaf-file-name="dataset_loader.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/discrete_model/dataset_loader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="46" column="20" selection-start-line="46" selection-start-column="20" selection-end-line="46" selection-end-column="20" />
+            <state relative-caret-position="630">
+              <caret line="53" column="41" selection-start-line="53" selection-start-column="41" selection-end-line="53" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -35,8 +35,8 @@
       <file leaf-file-name="crf_gru_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/discrete_model/crf_gru_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="215" column="33" selection-start-line="215" selection-start-column="33" selection-end-line="215" selection-end-column="33" />
+            <state relative-caret-position="165">
+              <caret line="212" column="30" selection-start-line="212" selection-start-column="25" selection-end-line="212" selection-end-column="30" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -47,8 +47,8 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/discrete_model/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="108" column="9" selection-start-line="108" selection-start-column="4" selection-end-line="108" selection-end-column="9" />
+            <state relative-caret-position="1995">
+              <caret line="134" column="13" selection-start-line="134" selection-start-column="13" selection-end-line="134" selection-end-column="13" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -111,9 +111,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>pad_t</find>
-      <find>batch_num</find>
-      <find>numerical</find>
       <find>numerize_sent</find>
       <find>numerize</find>
       <find>numerize_s</find>
@@ -140,7 +137,10 @@
       <find>pad_cat_tag</find>
       <find>for_s</find>
       <find>unsqueeze</find>
+      <find>make</find>
+      <find>linear</find>
       <find>coder</find>
+      <find>trans</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -165,15 +165,15 @@
         <option value="$PROJECT_DIR$/discrete_model/padding.py" />
         <option value="$PROJECT_DIR$/discrete_model/dataset_loader.py" />
         <option value="$PROJECT_DIR$/generate_model/padding.py" />
+        <option value="$PROJECT_DIR$/discrete_model/crf_gru_model.py" />
         <option value="$PROJECT_DIR$/discrete_model/utils.py" />
         <option value="$PROJECT_DIR$/discrete_model/crf_training.py" />
-        <option value="$PROJECT_DIR$/discrete_model/crf_gru_model.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="249" />
-    <option name="y" value="24" />
+    <option name="x" value="191" />
+    <option name="y" value="42" />
     <option name="width" value="1401" />
     <option name="height" value="998" />
   </component>
@@ -327,19 +327,18 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="249" y="24" width="1401" height="998" extended-state="0" />
-    <editor active="true" />
+    <frame x="191" y="42" width="1401" height="998" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24982156" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.34157303" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.34157303" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -487,16 +486,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/generate_model/decode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="52" selection-start-line="3" selection-start-column="52" selection-end-line="3" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/generate_model/cal_maxlen.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/generate_model/padding.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -521,6 +510,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/generate_model/decode.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="52" selection-start-line="3" selection-start-column="52" selection-end-line="3" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/generate_model/mask.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -528,27 +524,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/generate_model/cal_maxlen.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/discrete_model/dataset_loader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="53" column="41" selection-start-line="53" selection-start-column="41" selection-end-line="53" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/discrete_model/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="122">
-          <caret line="108" column="9" selection-start-line="108" selection-start-column="4" selection-end-line="108" selection-end-column="9" />
+        <state relative-caret-position="1995">
+          <caret line="134" column="13" selection-start-line="134" selection-start-column="13" selection-end-line="134" selection-end-column="13" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/discrete_model/dataset_loader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="46" column="20" selection-start-line="46" selection-start-column="20" selection-end-line="46" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/discrete_model/crf_gru_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="215" column="33" selection-start-line="215" selection-start-column="33" selection-end-line="215" selection-end-column="33" />
+        <state relative-caret-position="165">
+          <caret line="212" column="30" selection-start-line="212" selection-start-column="25" selection-end-line="212" selection-end-column="30" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
@@ -557,8 +556,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/discrete_model/crf_training.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="94" column="36" lean-forward="true" selection-start-line="94" selection-start-column="36" selection-end-line="94" selection-end-column="36" />
+        <state relative-caret-position="203">
+          <caret line="124" column="33" lean-forward="true" selection-start-line="124" selection-start-column="33" selection-end-line="124" selection-end-column="33" />
           <folding>
             <element signature="e#0#69#0" expanded="true" />
           </folding>
