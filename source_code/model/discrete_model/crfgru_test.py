@@ -1,4 +1,4 @@
-from discrete_model.crf_gru_model import Crf, Bigru, BigruCrf, Linear
+from discrete_model.comp_model import Crf, Bigru, BigruCrf, Linear
 from discrete_model.shared_model import SentGru
 from discrete_model.dataset_loader import batchload, MyTabularDataset
 from discrete_model.cal_maxlen import sentence_maxlen_per_dialogue, sent_loader, sentence_maxlen_per_batch
@@ -21,7 +21,86 @@ import torch
 def changeindex(inp):
     return inp[1:]
 
-BATCH_SIZE = 128
+def maxindex(arry):
+    i = 0
+    j = 0
+    maxidx = 0
+    while i < len(arry):
+        if j < arry[i]:
+            j = arry[i]
+            maxidx = i
+        i = i + 1
+    return maxidx
+
+def max_indexset_per_batch(ary):
+    indexset = []
+    i = 0
+    while i < len(ary):
+        small_indexset = []
+        j = 0
+
+        while j < len(ary[i]):
+            small_indexset.append(maxindex(ary[i][j]))
+            j = j + 1
+        indexset.append(small_indexset)
+        i = i + 1
+    return indexset
+
+
+def cal_accuracy(model_predict, real_tag):  # per dialogue
+    '''
+    Args:
+        model_predict
+            model predicted tags
+        real_tag
+            real tags
+        tag_len
+            tag len
+
+    Yields:
+        accuracy
+
+    Example:
+
+    real = torch.tensor([  0,   2,   1,   2,   1,   1,   1,   1,   1,   2,   1,   1, 1,   1,  29], device='cuda:0')
+    model = [2, 1, 2, 1, 17, 1, 17, 1, 3, 1, 17, 1, 17, 29]
+    taglen = len(model)
+
+    (npreal[tagseq+1]//4) real emotion
+    (model_predict[tagseq]//4) model emotion
+
+    (npreal[tagseq+1]%4) real action
+    (model_predict[tagseq]%4) model action
+
+    emotion err = 0.3076923076923077
+    action err = 0.07692307692307693
+    accuracy = 0.8076923076923077
+    '''
+    tag_len = len(model_predict)
+    npreal = real_tag.cpu().numpy()  #
+    tagseq = 0
+    emotiontag = []
+    actiontag = []
+    emoerr = 0
+    acterr = 0
+    while tagseq < (tag_len - 1):
+
+        emotiontag = np.append(emotiontag, npreal[tagseq + 1] // 4)
+        actiontag = np.append(actiontag, npreal[tagseq + 1] % 4)
+
+        if (npreal[tagseq + 1] // 4) != (model_predict[tagseq] // 4):
+            emoerr = emoerr + 1
+
+        if (npreal[tagseq + 1] % 4) != (model_predict[tagseq] % 4):
+            acterr = acterr + 1
+
+        tagseq = tagseq + 1
+
+    return 1 - (emoerr / tagseq + acterr / tagseq) / 2
+
+
+
+BATCH_SIZE = 64
 HIDDEN_SIZE = 100
 device = torch.device("cuda")
 
@@ -37,9 +116,9 @@ my_fields = {'dial': ('Text', data.Field(sequential=True)),
              'emo': ('labels_1', data.Field(sequential=False)),
              'act': ('labels_2', data.Field(sequential=False))}
 print("make data")
-train_data = MyTabularDataset.splits(path=working_path, train='data_jsonfile/full_data.json', fields=my_fields)
+train_data = MyTabularDataset.splits(path=working_path, train='data_jsonfile/full_data_test.json', fields=my_fields)
 train_data = sorted(train_data, key=lambda x: sentence_maxlen_per_dialogue(x))
-train_data = train_data[:-5118]  # exclude dialogue which has extremely long sentence (0~11117 => 0~9999)
+train_data = train_data  # exclude dialogue which has extremely long sentence (0~11117 => 0~9999)
 train = sorted(train_data, key=lambda x: -len(x.Text))  # reordering training dataset with number of sentences
 # low index has much sentence because afterwards we use torch pad_sequence
 
@@ -57,13 +136,6 @@ linear = Linear(tag_size, HIDDEN_SIZE).cuda()
 
 sent = SentGru(HIDDEN_SIZE, bidirectional=True, device=device).cuda()
 
-learning_rate = 0.0001
-optimizer0 = optim.SGD(sent.parameters(), lr=learning_rate, weight_decay=1e-4)
-optimizer1 = optim.SGD(grucrf.parameters(), lr=learning_rate, weight_decay=1e-4)
-optimizer2 = optim.SGD(gru.parameters(), lr=learning_rate, weight_decay=1e-4)
-optimizer3 = optim.SGD(crf.parameters(), lr=learning_rate, weight_decay=1e-4)
-optimizer4 = optim.SGD(linear.parameters(), lr=learning_rate, weight_decay=1e-4)
-
 print("now ready")
 
 
@@ -72,9 +144,9 @@ crf.load_state_dict(torch.load(working_path + 'parameter/crf.pth'))
 grucrf.load_state_dict(torch.load(working_path + 'parameter/crf_gru.pth'))
 sent.load_state_dict(torch.load(working_path + 'parameter/shared.pth'))
 
-cross_e_loss = nn.CrossEntropyLoss()
 
-
+sent.load_state_dict(torch.load(working_path + 'parameter/linear_share.pth'))
+linear.load_state_dict(torch.load(working_path + 'parameter/linear.pth'))
 
 
 iter_num = 0
@@ -82,19 +154,17 @@ k = 0
 while iter_num < 1:
     iter_num = iter_num + 1
     batchnum = 1
-    for batch_data in batchload(train, repeat=True, batchsize=BATCH_SIZE, data_seq=dataseq):
+    linear_acc = 0
+    for batch_data in batchload(train, repeat=False, batchsize=BATCH_SIZE, data_seq=dataseq):
         # load txt data from jsonfile
 
         print('new_batch----------------')
         print("sent_maxlen = ", sentence_maxlen_per_batch(batch_data))
-        print("dial_len_range = ", len(batch_data[0].Text), " - ", len(batch_data[99].Text))
+        print("dial_len_range = ", len(batch_data[0].Text), " - ", len(batch_data[BATCH_SIZE-1].Text))
 
         batchnum = batchnum + 1
 
         #    continue
-
-        sent.zero_grad()
-        crf.zero_grad()
 
         new_dial, new_tag, dial_leng = all_preprocess(sent, batch_data)
         # load batch* (dialogue_length*sent_vec(float)) -> new_dial
@@ -104,46 +174,34 @@ while iter_num < 1:
         # print(np.shape(new_dial))
         # print(new_tag[0].cpu().numpy())
         # print(coder_mask(new_tag[0].cpu().numpy(), 31, True).view(-1, 31))
-        print(dial_leng)
-
-        tag = changeindex(new_tag[0]).unsqueeze(0)
-        one_hot_tag = tag
-        # one_hot_tag = coder_mask(tag.cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)
-
-        i = 1
-        while i < BATCH_SIZE:
-            tag = changeindex(new_tag[i]).unsqueeze(0)
-            # tag = coder_mask(tag.cpu().numpy(), 31, True).view(-1, 31).unsqueeze(0)
-            one_hot_tag = torch.cat((one_hot_tag, tag), 0)
-            i = i + 1
 
         tensormask = make_mask(dial_leng)
 
         my_output = linear(tensormask, new_dial)
-        my_output = torch.transpose(my_output, 1, 2)
-        print(my_output.size())
-        print(one_hot_tag.size())
-        print("zzzzzz")
+        my_output_tag = max_indexset_per_batch(my_output)
 
-        loss = cross_e_loss(my_output, one_hot_tag)
+        i = 0
+        sum_acc = 0
+        while i < BATCH_SIZE:
+            sum_acc = sum_acc + cal_accuracy(my_output_tag[i], new_tag[i])
 
-        print(loss)
+            i = i + 1
+        print(sum_acc / BATCH_SIZE)
+
+        linear_acc = linear_acc + sum_acc/BATCH_SIZE
+
+
+
+
         # loss = grucrf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
         # loss = crf.neg_log_likelihood(make_mask(dial_leng), new_dial, new_tag, BATCH_SIZE)
+
         newary_ = []
-        # loss, newary_ = loss_filtering(loss, filtering_value, newary_, k)
-        print(loss)
-        batch_loss = torch.sum(loss)
-        print(batch_loss)
-        batch_loss.backward()
+        # loss, newary_ = loss_filtering(loss, filtering_value, newary_, k
 
-        optimizer0.step()
-        # optimizer1.step()
-        # optimizer2.step()
-        optimizer3.step()
-        # optimizer4.step()
-        #torch.save(crf.state_dict(), working_path + 'parameter/crf.pth')
-
+        # torch.save(crf.state_dict(), working_path + 'parameter/crf.pth')
+        # torch.save(linear.state_dict(), working_path + 'parameter/linear.pth')
+        # torch.save(sent.state_dict(), working_path + 'parameter/linear_share.pth')
         '''
                 if batchnum == 50:
             break
@@ -168,5 +226,5 @@ while iter_num < 1:
             newary = newary_
             newary_ = []
         '''
-
-
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print(linear_acc / batchnum)
