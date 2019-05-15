@@ -88,10 +88,10 @@ def cal_accuracy(model_predict, real_tag):  # per dialogue
         emotiontag = np.append(emotiontag, npreal[tagseq + 1] // 4)
         actiontag = np.append(actiontag, npreal[tagseq + 1] % 4)
 
-        if (npreal[tagseq + 1] // 4) != (model_predict[tagseq] // 4):
+        if (npreal[tagseq + 1] // 4) != 0: # (model_predict[tagseq] // 4):
             emoerr = emoerr + 1
 
-        if (npreal[tagseq + 1] % 4) != (model_predict[tagseq] % 4):
+        if (npreal[tagseq + 1] % 4) != 1: #(model_predict[tagseq] % 4):
             acterr = acterr + 1
 
         tagseq = tagseq + 1

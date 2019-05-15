@@ -99,7 +99,6 @@ def cal_accuracy(model_predict, real_tag):  # per dialogue
     return 1 - (emoerr / tagseq + acterr / tagseq) / 2
 
 
-
 BATCH_SIZE = 64
 HIDDEN_SIZE = 100
 device = torch.device("cuda")
@@ -148,13 +147,12 @@ sent.load_state_dict(torch.load(working_path + 'parameter/shared.pth'))
 sent.load_state_dict(torch.load(working_path + 'parameter/linear_share.pth'))
 linear.load_state_dict(torch.load(working_path + 'parameter/linear.pth'))
 
-
 iter_num = 0
 k = 0
 while iter_num < 1:
     iter_num = iter_num + 1
     batchnum = 1
-    linear_acc = 0
+    crfgru_acc = 0
     for batch_data in batchload(train, repeat=False, batchsize=BATCH_SIZE, data_seq=dataseq):
         # load txt data from jsonfile
 
@@ -177,18 +175,18 @@ while iter_num < 1:
 
         tensormask = make_mask(dial_leng)
 
-        my_output = linear(tensormask, new_dial)
-        my_output_tag = max_indexset_per_batch(my_output)
-
-        i = 0
+        tag_num = 0
         sum_acc = 0
-        while i < BATCH_SIZE:
-            sum_acc = sum_acc + cal_accuracy(my_output_tag[i], new_tag[i])
+        while tag_num < BATCH_SIZE:
 
-            i = i + 1
+            dummy_input = [make_mask(dial_leng), new_dial]
+
+            sum_acc = sum_acc + cal_accuracy(grucrf(BATCH_SIZE, dummy_input, seq=tag_num)[1], new_tag[tag_num])
+
+            tag_num = tag_num + 1
         print(sum_acc / BATCH_SIZE)
 
-        linear_acc = linear_acc + sum_acc/BATCH_SIZE
+        crfgru_acc = crfgru_acc + sum_acc/BATCH_SIZE
 
 
 
@@ -227,4 +225,4 @@ while iter_num < 1:
             newary_ = []
         '''
     print("aaaaaaaaaaaaaaaaaaaaaaaaaa")
-    print(linear_acc / batchnum)
+    print(crfgru_acc / batchnum)
