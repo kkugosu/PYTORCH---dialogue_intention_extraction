@@ -30,10 +30,6 @@ From our experiments, we derived:
 - The intention and emotion of the speaker play a pivotal role in determining the flow and direction of the conversation.
 - The impact of the speaker's intention on the conversation's progression becomes increasingly noticeable as the dialogue extends.
 
-## Getting Started
-
-[// You can add sections here detailing how to set up and execute the project]
-
 
 ## Acknowledgements
 
