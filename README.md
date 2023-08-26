@@ -37,7 +37,7 @@ From our experiments, we derived:
 
 ## Acknowledgements
 
-[// Any credits or shoutouts, if necessary]
+probability theory, machine learning
 
 
 https://library.korea.ac.kr/detail/?cid=CAT000045999362&ctype=t
